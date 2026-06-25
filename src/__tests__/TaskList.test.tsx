@@ -55,5 +55,51 @@ describe('TaskList', () => {
 		expect(screen.getByText('2 tâches')).toBeInTheDocument();
 	});
 
-	// ... TODO: Add more tests
+	it('shows error state', () => {
+		render(
+			<TaskList
+				tasks={[]}
+				loading={false}
+				error="API indisponible"
+				onToggle={vi.fn()}
+				onDelete={vi.fn()}
+				onEdit={vi.fn()}
+			/>
+		);
+
+		expect(screen.getByTestId('error')).toBeInTheDocument();
+		expect(screen.getByText('Erreur : API indisponible')).toBeInTheDocument();
+	});
+
+	it('shows empty state', () => {
+		render(
+			<TaskList
+				tasks={[]}
+				loading={false}
+				error={null}
+				onToggle={vi.fn()}
+				onDelete={vi.fn()}
+				onEdit={vi.fn()}
+			/>
+		);
+
+		expect(screen.getByTestId('empty')).toBeInTheDocument();
+		expect(screen.getByText('Aucune tâche')).toBeInTheDocument();
+	});
+
+	it('uses singular labels when there is one task and one completed task', () => {
+		render(
+			<TaskList
+				tasks={[mockTasks[1]]}
+				loading={false}
+				error={null}
+				onToggle={vi.fn()}
+				onDelete={vi.fn()}
+				onEdit={vi.fn()}
+			/>
+		);
+
+		expect(screen.getByText('1 tâche')).toBeInTheDocument();
+		expect(screen.getByText('1 terminée')).toBeInTheDocument();
+	});
 });

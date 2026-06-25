@@ -9,7 +9,19 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sonar": "docker compose --env-file .env -f docker-compose.ci.yml run --rm sonar-scanner",
+    "docker:build": "docker compose build frontend",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "sonar:all": "bun run sonar && sh -c 'cd ../cicd-tasklist-backend && bun run sonar'",
+    "trivy": "bun run trivy:scan",
+    "trivy:build": "docker compose build frontend",
+    "trivy:scan": "mkdir -p reports && docker compose -f docker-compose.ci.yml run --rm trivy",
+    "trivy:sbom": "mkdir -p reports && docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v \"$(pwd)/reports:/reports\" -v cicd-tasklist-frontend_trivy-cache:/root/.cache/trivy aquasec/trivy:latest image --format cyclonedx --output /reports/sbom.cdx.json efrei-pro-pipepline-tp4-frontend:latest",
+    "trivy:ci": "bun run trivy:build && bun run trivy:scan && bun run trivy:sbom",
+    "docker:tag": "docker tag efrei-pro-pipepline-tp4-frontend:latest liamor2/efrei-pro-pipepline-tp4-frontend:latest",
+    "docker:push": "bun run docker:tag && docker push liamor2/efrei-pro-pipepline-tp4-frontend:latest"
   },
   "dependencies": {
     "@emnapi/core": "^1.11.1",

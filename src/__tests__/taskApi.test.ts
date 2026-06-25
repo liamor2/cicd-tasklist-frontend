@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getTasks, createTask, updateTask, deleteTask } from '../api/taskApi';
+import { getTasks } from '../api/taskApi';
 
 const mockTask = {
 	id: 1,
