@@ -16,18 +16,58 @@ pipeline {
 
   stages {
     stage('Install dependencies') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'Jenkinsfile'
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'tsconfig.json'
+          changeset 'vite.config.ts'
+          changeset 'biome.json'
+          changeset 'src/**'
+          changeset 'public/**'
+          changeset 'Dockerfile'
+          changeset 'nginx.conf'
+          changeset 'docker-compose*.yml'
+          changeset 'sonar-project.properties'
+        }
+      }
       steps {
-        sh 'npm ci'
+        sh 'npm ci --cache "$HOME/.npm-cache" --prefer-offline'
       }
     }
 
     stage('Lint and format check') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'Jenkinsfile'
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'tsconfig.json'
+          changeset 'vite.config.ts'
+          changeset 'biome.json'
+          changeset 'src/**'
+          changeset 'public/**'
+        }
+      }
       steps {
         sh 'npm run check'
       }
     }
 
     stage('Unit tests') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'tsconfig.json'
+          changeset 'vite.config.ts'
+          changeset 'src/**'
+        }
+      }
       steps {
         sh 'npm run test:coverage'
         sh 'mkdir -p reports coverage'
@@ -41,32 +81,77 @@ pipeline {
     }
 
     stage('Build') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'tsconfig.json'
+          changeset 'vite.config.ts'
+          changeset 'src/**'
+          changeset 'public/**'
+        }
+      }
       steps {
         sh 'npm run build'
       }
     }
 
     stage('SonarQube analysis and Quality Gate') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'tsconfig.json'
+          changeset 'vite.config.ts'
+          changeset 'src/**'
+          changeset 'sonar-project.properties'
+        }
+      }
       steps {
         withCredentials([string(credentialsId: 'liam-sonar-token-frontend', variable: 'SONAR_TOKEN')]) {
           sh '''
-            docker compose -f docker-compose.ci.yml run --rm \
-              -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
-              -e SONAR_TOKEN="${SONAR_TOKEN}" \
-              -e SONAR_PROJECT_KEY="${SONAR_PROJECT_KEY}" \
-              sonar-scanner
+            docker compose -f docker-compose.ci.yml run --rm               -e SONAR_HOST_URL="${SONAR_HOST_URL}"               -e SONAR_TOKEN="${SONAR_TOKEN}"               -e SONAR_PROJECT_KEY="${SONAR_PROJECT_KEY}"               sonar-scanner
           '''
         }
       }
     }
 
     stage('Docker build') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'tsconfig.json'
+          changeset 'vite.config.ts'
+          changeset 'src/**'
+          changeset 'public/**'
+          changeset 'Dockerfile'
+          changeset 'nginx.conf'
+          changeset 'docker-compose.yml'
+        }
+      }
       steps {
         sh 'npm run docker:build'
       }
     }
 
     stage('Trivy scan') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'src/**'
+          changeset 'public/**'
+          changeset 'Dockerfile'
+          changeset 'nginx.conf'
+          changeset 'docker-compose.yml'
+          changeset 'docker-compose.ci.yml'
+        }
+      }
       steps {
         sh 'npm run trivy:scan'
       }
@@ -78,6 +163,19 @@ pipeline {
     }
 
     stage('Generate SBOM') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'src/**'
+          changeset 'public/**'
+          changeset 'Dockerfile'
+          changeset 'nginx.conf'
+          changeset 'docker-compose.yml'
+          changeset 'docker-compose.ci.yml'
+        }
+      }
       steps {
         sh 'npm run trivy:sbom'
       }
@@ -89,6 +187,18 @@ pipeline {
     }
 
     stage('Push Docker image') {
+      when {
+        anyOf {
+          expression { currentBuild.number == 1 }
+          changeset 'package.json'
+          changeset 'package-lock.json'
+          changeset 'src/**'
+          changeset 'public/**'
+          changeset 'Dockerfile'
+          changeset 'nginx.conf'
+          changeset 'docker-compose.yml'
+        }
+      }
       steps {
         withCredentials([usernamePassword(
           credentialsId: 'liam-dockerhub-password',
