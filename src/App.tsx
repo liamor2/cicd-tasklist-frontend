@@ -1,7 +1,7 @@
-import { TaskForm } from './components/TaskForm';
-import { TaskList } from './components/TaskList';
-import { useTasks } from './hooks/useTasks';
-import type { CreateTaskPayload } from './types/task';
+import { TaskForm } from "./components/TaskForm";
+import { TaskList } from "./components/TaskList";
+import { useTasks } from "./hooks/useTasks";
+import type { CreateTaskPayload } from "./types/task";
 
 function App() {
   const { tasks, loading, error, addTask, editTask, removeTask, toggleComplete } = useTasks();

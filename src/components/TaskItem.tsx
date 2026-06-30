@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import type { Task, UpdateTaskPayload } from '../types/task';
+import { useState } from "react";
+import type { Task, UpdateTaskPayload } from "../types/task";
 
 interface TaskItemProps {
   task: Task;
@@ -11,7 +11,7 @@ interface TaskItemProps {
 export function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
-  const [editDescription, setEditDescription] = useState(task.description || '');
+  const [editDescription, setEditDescription] = useState(task.description || "");
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleSave = () => {
@@ -25,7 +25,7 @@ export function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
 
   const handleCancel = () => {
     setEditTitle(task.title);
-    setEditDescription(task.description || '');
+    setEditDescription(task.description || "");
     setEditing(false);
   };
 
@@ -38,14 +38,14 @@ export function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
     }
   };
 
-  const createdDate = new Date(task.createdAt).toLocaleDateString('fr-FR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  const createdDate = new Date(task.createdAt).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 
   return (
-    <div className={`task-item ${task.completed ? 'task-completed' : ''}`} data-testid="task-item">
+    <div className={`task-item ${task.completed ? "task-completed" : ""}`} data-testid="task-item">
       {editing ? (
         <div className="task-edit-form">
           <input
@@ -81,15 +81,13 @@ export function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
               checked={task.completed}
               onChange={() => onToggle(task.id)}
               className="task-checkbox"
-              aria-label={`Marquer "${task.title}" comme ${task.completed ? 'non terminée' : 'terminée'}`}
+              aria-label={`Marquer "${task.title}" comme ${task.completed ? "non terminée" : "terminée"}`}
             />
             <span className="checkbox-custom" />
           </div>
           <div className="task-content">
             <h3 className="task-title">{task.title}</h3>
-            {task.description && (
-              <p className="task-description">{task.description}</p>
-            )}
+            {task.description && <p className="task-description">{task.description}</p>}
             <span className="task-date">{createdDate}</span>
           </div>
           <div className="task-actions">
@@ -109,7 +107,7 @@ export function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
               title="Supprimer"
               type="button"
             >
-              {confirmDelete ? '⚠️' : '🗑️'}
+              {confirmDelete ? "⚠️" : "🗑️"}
             </button>
           </div>
         </>

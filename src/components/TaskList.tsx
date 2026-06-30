@@ -1,5 +1,5 @@
-import type { Task, UpdateTaskPayload } from '../types/task';
-import { TaskItem } from './TaskItem';
+import type { Task, UpdateTaskPayload } from "../types/task";
+import { TaskItem } from "./TaskItem";
 
 interface TaskListProps {
   tasks: Task[];
@@ -44,20 +44,22 @@ export function TaskList({ tasks, loading, error, onToggle, onDelete, onEdit }: 
   return (
     <div className="task-list" data-testid="task-list">
       <div className="task-count">
-        <span>{tasks.length} tâche{tasks.length > 1 ? 's' : ''}</span>
+        <span>
+          {tasks.length} tâche{tasks.length > 1 ? "s" : ""}
+        </span>
         <span className="task-count-completed">
-          {tasks.filter((t) => t.completed).length} terminée{tasks.filter((t) => t.completed).length > 1 ? 's' : ''}
+          {tasks.filter((t) => t.completed).length} terminée
+          {tasks.filter((t) => t.completed).length > 1 ? "s" : ""}
         </span>
       </div>
       <div className="task-items">
         {tasks.map((task, index) => (
-          <div key={task.id} className="task-item-wrapper" style={{ animationDelay: `${index * 0.05}s` }}>
-            <TaskItem
-              task={task}
-              onToggle={onToggle}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
+          <div
+            key={task.id}
+            className="task-item-wrapper"
+            style={{ animationDelay: `${index * 0.05}s` }}
+          >
+            <TaskItem task={task} onToggle={onToggle} onDelete={onDelete} onEdit={onEdit} />
           </div>
         ))}
       </div>

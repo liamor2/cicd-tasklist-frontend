@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { Task, CreateTaskPayload, UpdateTaskPayload } from '../types/task';
-import * as taskApi from '../api/taskApi';
+import { useCallback, useEffect, useState } from "react";
+import * as taskApi from "../api/taskApi";
+import type { CreateTaskPayload, Task, UpdateTaskPayload } from "../types/task";
 
 export function useTasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -14,7 +14,7 @@ export function useTasks() {
       const data = await taskApi.getTasks();
       setTasks(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
       setLoading(false);
     }
@@ -35,12 +35,15 @@ export function useTasks() {
     setTasks((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const toggleComplete = useCallback(async (id: number) => {
-    const task = tasks.find((t) => t.id === id);
-    if (!task) return;
-    const updated = await taskApi.updateTask(id, { completed: !task.completed });
-    setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
-  }, [tasks]);
+  const toggleComplete = useCallback(
+    async (id: number) => {
+      const task = tasks.find((t) => t.id === id);
+      if (!task) return;
+      const updated = await taskApi.updateTask(id, { completed: !task.completed });
+      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    },
+    [tasks],
+  );
 
   useEffect(() => {
     loadTasks();
