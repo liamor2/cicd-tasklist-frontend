@@ -88,19 +88,19 @@ pipeline {
 
   stages {
     stage('Install dependencies') {
-      when { expression { shouldRunStage('Install dependencies', ['Jenkinsfile', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'biome.json', 'src/**', 'public/**', 'sonar-project.properties']) } }
+      when { expression { shouldRunStage('Install dependencies', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'biome.json', 'src/**', 'public/**', 'sonar-project.properties']) } }
       steps { sh 'npm ci --cache "$HOME/.npm-cache" --prefer-offline' }
       post { success { markStageSuccess('Install dependencies') } }
     }
 
     stage('Lint and format check') {
-      when { expression { shouldRunStage('Lint and format check', ['Jenkinsfile', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'biome.json', 'src/**', 'public/**']) } }
+      when { expression { shouldRunStage('Lint and format check', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'biome.json', 'src/**', 'public/**']) } }
       steps { sh 'npm run check' }
       post { success { markStageSuccess('Lint and format check') } }
     }
 
     stage('Unit tests') {
-      when { expression { shouldRunStage('Unit tests', ['Jenkinsfile', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'src/**', 'sonar-project.properties']) } }
+      when { expression { shouldRunStage('Unit tests', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'src/**', 'sonar-project.properties']) } }
       steps {
         sh 'npm run test:coverage'
         sh 'mkdir -p reports coverage'
@@ -113,17 +113,17 @@ pipeline {
     }
 
     stage('Build') {
-      when { expression { shouldRunStage('Build', ['Jenkinsfile', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'src/**', 'public/**']) } }
+      when { expression { shouldRunStage('Build', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'src/**', 'public/**']) } }
       steps { sh 'npm run build' }
       post { success { markStageSuccess('Build') } }
     }
 
     stage('SonarQube analysis and Quality Gate') {
-      when { expression { shouldRunStage('SonarQube analysis and Quality Gate', ['Jenkinsfile', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'src/**', 'sonar-project.properties']) } }
+      when { expression { shouldRunStage('SonarQube analysis and Quality Gate', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'src/**', 'sonar-project.properties']) } }
       steps {
         withCredentials([string(credentialsId: 'liam-sonar-token-frontend', variable: 'SONAR_TOKEN')]) {
           sh '''
-            docker compose -f docker-compose.ci.yml run --rm \
+            ./scripts/docker-compose.sh -f docker-compose.ci.yml run --rm \
               -e SONAR_HOST_URL="${SONAR_HOST_URL}" \
               -e SONAR_TOKEN="${SONAR_TOKEN}" \
               -e SONAR_PROJECT_KEY="${SONAR_PROJECT_KEY}" \
@@ -135,13 +135,13 @@ pipeline {
     }
 
     stage('Docker build') {
-      when { expression { shouldRunStage('Docker build', ['Jenkinsfile', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'src/**', 'public/**', 'Dockerfile', 'nginx.conf', 'docker-compose.yml']) } }
+      when { expression { shouldRunStage('Docker build', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'tsconfig.json', 'vite.config.ts', 'src/**', 'public/**', 'Dockerfile', 'nginx.conf', 'docker-compose.yml']) } }
       steps { sh 'npm run docker:build' }
       post { success { markStageSuccess('Docker build') } }
     }
 
     stage('Trivy scan') {
-      when { expression { shouldRunStage('Trivy scan', ['Jenkinsfile', 'package.json', 'package-lock.json', 'src/**', 'public/**', 'Dockerfile', 'nginx.conf', 'docker-compose.yml', 'docker-compose.ci.yml']) } }
+      when { expression { shouldRunStage('Trivy scan', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'src/**', 'public/**', 'Dockerfile', 'nginx.conf', 'docker-compose.yml', 'docker-compose.ci.yml']) } }
       steps { sh 'npm run trivy:scan' }
       post {
         success { markStageSuccess('Trivy scan') }
@@ -150,7 +150,7 @@ pipeline {
     }
 
     stage('Generate SBOM') {
-      when { expression { shouldRunStage('Generate SBOM', ['Jenkinsfile', 'package.json', 'package-lock.json', 'src/**', 'public/**', 'Dockerfile', 'nginx.conf', 'docker-compose.yml', 'docker-compose.ci.yml']) } }
+      when { expression { shouldRunStage('Generate SBOM', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'src/**', 'public/**', 'Dockerfile', 'nginx.conf', 'docker-compose.yml', 'docker-compose.ci.yml']) } }
       steps { sh 'npm run trivy:sbom' }
       post {
         success { markStageSuccess('Generate SBOM') }
@@ -159,7 +159,7 @@ pipeline {
     }
 
     stage('Push Docker image') {
-      when { expression { shouldRunStage('Push Docker image', ['Jenkinsfile', 'package.json', 'package-lock.json', 'src/**', 'public/**', 'Dockerfile', 'nginx.conf', 'docker-compose.yml']) } }
+      when { expression { shouldRunStage('Push Docker image', ['Jenkinsfile', 'scripts/**', 'package.json', 'package-lock.json', 'src/**', 'public/**', 'Dockerfile', 'nginx.conf', 'docker-compose.yml']) } }
       steps {
         withCredentials([usernamePassword(
           credentialsId: 'liam-dockerhub-password',
